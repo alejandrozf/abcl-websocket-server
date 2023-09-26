@@ -9,6 +9,11 @@
 (defparameter *servers* '())
 
 
+(defun stop-server (server)
+  (java:jcall (java:jmethod "org.webbitserver.netty.NettyWebServer" "stop")
+              server))
+
+
 (defun add-new-server (server)
   (setf *current-server* server)
   (push server *servers*)
