@@ -2,28 +2,40 @@
 
 (in-package #:abcl-websocket-server)
 
-(defparameter *websocket-class*
-    (java:jnew-runtime-class
-     "ABCLWebsocketServer"
-     :constructors (list
-                    (list (list "java.net.InetSocketAddress")
-                          (lambda (this address)
-                            (print this)
-                            (print address))
-                          (list 1)))
-     :superclass "org.java_websocket.server.WebSocketServer"
-     :methods (list
-               (list "onMessage" :void '("org.java_websocket.WebSocket" "java.nio.ByteBuffer")
-                     (lambda (this message)
-                       (format t "var message=~a~%" message)))
-               (list "onOpen" :void '("org.java_websocket.WebSocket" "org.java_websocket.handshake.ClientHandshake")
-                     (lambda (this conn handshake)
-                       (let ((get-remote-socket-addr-method
-                               (java:jmethod "org.java_websocket.WebSocket" "getRemoteSocketAddress")))
-                         (format t "new connection from ~a~%" (java:jcall get-remote-socket-addr-method conn)))))
-               (list "onError" :void '("org.java_websocket.WebSocket" "java.lang.Exception")
-                     (lambda (this conn exception)
-                       (format t "an exception ocurred ~a~%" exception)))
-               (list "onStart" :void '()
-                     (lambda (this)
-                       (print "starting..."))))))
+
+(defparameter *current-server* nil)
+
+
+(defparameter *servers* '())
+
+
+(defun add-new-server (server)
+  (setf *current-server* server)
+  (push server *servers*)
+  server)
+
+
+(defmacro make-ws-server (path port &key on-open on-message on-ping on-pong on-close)
+  `(java:jcall
+    (java:jmethod "org.webbitserver.netty.NettyWebServer" "start")
+    (java:jcall
+     (java:jmethod "org.webbitserver.netty.NettyWebServer"
+                   "add"
+                   "java.lang.String"
+                   "org.webbitserver.WebSocketHandler")
+     (add-new-server
+      (java:jstatic (java:jmethod "org.webbitserver.WebServers" "createWebServer" "int")
+                    "org.webbitserver.WebServers" ,port))
+     ,path
+     (java:jinterface-implementation
+      "org.webbitserver.WebSocketHandler"
+      "onOpen" (lambda (connection)
+                 (progn ,@on-open))
+      "onClose" (lambda (connection)
+                  (progn ,@on-close))
+      "onMessage" (lambda (connection message)
+                    (progn ,@on-message))
+      "onPing" (lambda (connection message)
+                 (progn ,@on-ping))
+      "onPong" (lambda (connection message)
+                 (progn ,@on-pong))))))

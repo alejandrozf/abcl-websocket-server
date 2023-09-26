@@ -5,6 +5,6 @@
   :author "alejandrozf"
   :version "0.0.1"
   :serial t
-  :components ((:mvn "org.java-websocket/Java-WebSocket/1.5.4")
+  :components ((:mvn "org.webbitserver/webbit/0.4.15")
                (:file "package")
                (:file "abcl-websocket-server")))
