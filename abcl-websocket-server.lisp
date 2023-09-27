@@ -20,6 +20,12 @@
   server)
 
 
+(defun send-text (connection message)
+  (java:jcall
+   (java:jmethod "org.webbitserver.netty.NettyWebSocketConnection"
+                 "send" "java.lang.String") connection message))
+
+
 (defmacro make-ws-server (path port &key on-open on-message on-ping on-pong on-close)
   `(java:jcall
     (java:jmethod "org.webbitserver.netty.NettyWebServer" "start")
