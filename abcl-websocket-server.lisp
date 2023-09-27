@@ -41,12 +41,17 @@
      (java:jinterface-implementation
       "org.webbitserver.WebSocketHandler"
       "onOpen" (lambda (connection)
+                 (declare (ignorable connection))
                  (progn ,@on-open))
       "onClose" (lambda (connection)
+                  (declare (ignorable connection))
                   (progn ,@on-close))
       "onMessage" (lambda (connection message)
+                    (declare (ignorable connection message))
                     (progn ,@on-message))
       "onPing" (lambda (connection message)
+                 (declare (ignorable connection message))
                  (progn ,@on-ping))
       "onPong" (lambda (connection message)
+                 (declare (ignorable connection message))
                  (progn ,@on-pong))))))
