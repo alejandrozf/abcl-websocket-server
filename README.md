@@ -3,7 +3,9 @@
 
 This is a very simple and minimal websocket server for ABCL using the https://github.com/webbit/webbit library
 
-Usage
+Usage:
+
+This is a simple echo server
 
 ```
 CL-USER> (require :abcl-asdf)
@@ -23,9 +25,8 @@ CL-USER> (in-package :abcl-websocket-server)
 #<PACKAGE ABCL-WEBSOCKET-SERVER>
 ABCL-WEBSOCKET-SERVER> (make-ws-server "/myws" 7000
                 :on-open ((print "connected!"))
-                :on-message ((java:jcall
-                              (send-text connection message)
-                              (print message)))
+                :on-message ((send-text connection message)
+                             (print message))
                 :on-close ((print "I'm closing for now ...")))
 #<java.util.concurrent.FutureTask java.util.concurrent.FutureTask@.... {74CB0F5E}>
 ABCL-WEBSOCKET-SERVER>
